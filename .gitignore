@@ -1,0 +1,18 @@
+# Terraform folders and state files
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Sensitive files
+terraform.tfvars
+
+# Binary files
+*.zip
+*.jar
+*.exe
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+*.zip
+*.backup
+
