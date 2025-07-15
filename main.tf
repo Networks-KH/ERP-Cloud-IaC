@@ -11,7 +11,7 @@ provider "azurerm"  {
 }
 resource "azurerm_resource_group" "rg1" {
     name     = "ERP-ResourceGroup"
-    location = "East US"
+    location = "West US"
 }
 resource "azurerm_virtual_network" "vnet1" {
     name                = "vnet1"
@@ -34,6 +34,7 @@ resource "azurerm_network_interface" "vm1nic" {
         name                          = "ipconfig1"
         subnet_id                     = azurerm_subnet.vnet1subnet1.id
         private_ip_address_allocation = "Dynamic"
+        public_ip_address_id          = azurerm_public_ip.vm1publicip.id
     }
 }
 resource "azurerm_virtual_machine" "vm1" {
@@ -59,12 +60,41 @@ resource "azurerm_virtual_machine" "vm1" {
 
     os_profile {
         computer_name  = "vm1"
-        admin_username = "adminuser"
-        admin_password = "P@ssw0rd1234!"
+        admin_username = var.admin_username
+        admin_password = var.admin_password
     }
 
     os_profile_linux_config {
         disable_password_authentication = false
     }
   
+}
+resource "azurerm_public_ip" "vm1publicip" {
+    name                = "vm1-public-ip"
+    location            = azurerm_resource_group.rg1.location
+    resource_group_name = azurerm_resource_group.rg1.name
+    allocation_method   = "Static"
+    sku                 = "Standard"
+  
+}
+resource "azurerm_network_security_group" "vm1nsg" {
+    name                = "vm1-nsg"
+    location            = azurerm_resource_group.rg1.location
+    resource_group_name = azurerm_resource_group.rg1.name
+
+    security_rule {
+        name                       = "Allow-SSH"
+        priority                   = 1000
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_range     = "22"
+        source_address_prefix      = "*"
+        destination_address_prefix = "*"
+    }
+}
+resource "azurerm_subnet_network_security_group_association" "vm1subnetnsg" {
+    subnet_id                 = azurerm_subnet.vnet1subnet1.id
+    network_security_group_id = azurerm_network_security_group.vm1nsg.id
 }

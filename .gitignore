@@ -6,6 +6,19 @@
 # Sensitive files
 terraform.tfvars
 
+# Binary and backup files
+*.zip
+*.jar
+*.exe
+*.backup
+# Terraform folders and state files
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Sensitive files
+terraform.tfvars
+
 # Binary files
 *.zip
 *.jar
